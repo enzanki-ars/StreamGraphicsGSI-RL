@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29306.81
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AuroraGSI-RL", "AuroraGSI-RL\AuroraGSI-RL.vcxproj", "{7131F0DE-0B98-4D21-99E6-04F26E464EE3}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7131F0DE-0B98-4D21-99E6-04F26E464EE3}.Release|x86.ActiveCfg = Release|Win32
+		{7131F0DE-0B98-4D21-99E6-04F26E464EE3}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {9034D073-16BB-48CC-A018-8CD104B57C77}
+	EndGlobalSection
+EndGlobal
