@@ -77,9 +77,9 @@ void AuroraGSI::UpdateState(ServerWrapper wrapper)
 			GameState.Match.Teams[i].Name = i == 0 ? "Blue" : "Orange";
 
 		auto asd = teams.Get(i).GetFontColor();
-		GameState.Match.Teams[i].Red = (int)(asd.R * 255);
-		GameState.Match.Teams[i].Green = (int)(asd.G * 255);
-		GameState.Match.Teams[i].Blue = (int)(asd.B * 255);
+		GameState.Match.Teams[i].Red = asd.R;
+		GameState.Match.Teams[i].Green = asd.G;
+		GameState.Match.Teams[i].Blue = asd.B;
 	}
 
 	auto players = wrapper.GetPRIs();
