@@ -9,21 +9,22 @@ class AuroraGSI : public BakkesMod::Plugin::BakkesModPlugin
 public:
 	virtual void onLoad();
 	virtual void onUnload();
-
 private:
 #pragma region Fields
 	GameStateNode GameState;
+	std::string Json;
+	bool ok = true;
 #pragma endregion
 
 #pragma region Aurora
 	void StartLoop();
 	void SendToAurora(std::string);
-	ServerWrapper GetCurrentGameType();
 #pragma endregion
 
 #pragma region Update States
 	void UpdateMatchState();
 	void UpdateState(ServerWrapper wrapper);
 	void ResetStates();
+	ServerWrapper GetCurrentGameType();
 #pragma endregion
 };

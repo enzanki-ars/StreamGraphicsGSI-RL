@@ -2,7 +2,7 @@
 #include "AuroraGSI.h"
 
 //using std::placeholders::_1;
-BAKKESMOD_PLUGIN(AuroraGSI, "AuroraGSI", "0.0.1", PLUGINTYPE_THREADED)
+BAKKESMOD_PLUGIN(AuroraGSI, "AuroraGSI", "0.0.2", PLUGINTYPE_THREADED)
 
 #pragma region Plugin Methods
 void AuroraGSI::onLoad()
@@ -12,16 +12,23 @@ void AuroraGSI::onLoad()
 
 void AuroraGSI::onUnload()
 {
+	ok = false;
+	cvarManager->log("false");
 }
 #pragma endregion
 
 #pragma region Aurora
 void AuroraGSI::StartLoop() {
-	for (;;) {
+	while (ok) {
 		gameWrapper->Execute(std::bind(&AuroraGSI::UpdateMatchState, this));
-		SendToAurora(GameState.GetJson().dump());
+		string newJson = GameState.GetJson().dump();
+		if (Json != newJson) {
+			Json = newJson;
+			SendToAurora(newJson);
+		}	
 		Sleep(100);
 	}
+	cvarManager->log("stop");
 }
 
 void AuroraGSI::SendToAurora(std::string data)
@@ -31,7 +38,7 @@ void AuroraGSI::SendToAurora(std::string data)
 		(void)request.send("POST", data, { "Content-Type: application/json" });
 	}
 	catch (...) {
-		//ignore
+		ok = false;
 	}
 }
 #pragma endregion
