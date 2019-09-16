@@ -101,7 +101,6 @@ void AuroraGSI::UpdateState(ServerWrapper wrapper)
 	GameSettingPlaylistWrapper playlistWrapper = wrapper.GetPlaylist();
 	if (playlistWrapper.memory_address != NULL) {
 		GameState.Match.Mode = playlistWrapper.GetPlaylistId();
-		cvarManager->log("set mode " + std::to_string(playlistWrapper.GetPlaylistId()));
 	}
 }
 
