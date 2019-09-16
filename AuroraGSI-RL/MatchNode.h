@@ -12,32 +12,13 @@ enum class MatchType
 	Training,
 	Spectate
 };
-enum class MatchMode
-{
-	Undefined = -1,
-	CasualDuel,
-	CasualDoubles,
-	CasualStandard,
-	CasualChaos,
-	Private,
-	RankedDuel,
-	RankedDoubles,
-	RankedSoloStandard,
-	RankedStandard,
-	MutatorMashup,
-	Tournament,
-	RankedHoops,
-	RankedRumble,
-	RankedDropshot,
-	RankedSnowday
-};
 
 class MatchNode {
 public:
-	MatchType Type = MatchType::Menu;
-	MatchMode Mode = MatchMode::Undefined;
+	MatchType Type;
 	TeamNode Teams[2];
 	int Time;
+	int Mode;
 
 	nlohmann::json GetJson();
 };

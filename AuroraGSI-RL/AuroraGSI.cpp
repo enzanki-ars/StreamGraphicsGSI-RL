@@ -7,26 +7,18 @@ BAKKESMOD_PLUGIN(AuroraGSI, "AuroraGSI", "0.0.1", PLUGINTYPE_THREADED)
 #pragma region Plugin Methods
 void AuroraGSI::onLoad()
 {
-	//this->gameWrapper->HookEventPost("Function TAGame.PlayerController_TA.PostBeginPlay", std::bind(&AuroraGSI::HookMatchStarted, this, _1));
-	//this->gameWrapper->HookEventPost("Function TAGame.Ball_TA.RecordCarHit", std::bind(&AuroraGSI::HookPlayerChanged, this, _1));
-	//this->gameWrapper->HookEventPost("Function TAGame.GFxData_PRI_TA.HandleTeamChanged", std::bind(&AuroraGSI::HookPlayerChanged, this, _1));
-	//this->gameWrapper->HookEventPost("Function TAGame.ArenaSoundManager_TA.HandlePlayerScored", std::bind(&AuroraGSI::HookGoalScored, this, _1));
 	this->StartLoop();
 }
 
 void AuroraGSI::onUnload()
 {
-	//gameWrapper->UnhookEvent("Function TAGame.PlayerController_TA.PostBeginPlay");
-	//gameWrapper->UnhookEvent("Function TAGame.GFxData_PRI_TA.HandleTeamChanged");
-	//gameWrapper->UnhookEvent("Function TAGame.Ball_TA.RecordCarHit");
-	//gameWrapper->UnhookEvent("Function TAGame.ArenaSoundManager_TA.HandlePlayerScored");
 }
 #pragma endregion
 
 #pragma region Aurora
 void AuroraGSI::StartLoop() {
 	for (;;) {
-		this->UpdateMatchState();
+		gameWrapper->Execute(std::bind(&AuroraGSI::UpdateMatchState, this));
 		SendToAurora(GameState.GetJson().dump());
 		Sleep(100);
 	}
@@ -45,26 +37,26 @@ void AuroraGSI::SendToAurora(std::string data)
 #pragma endregion
 
 #pragma region Update State
-bool AuroraGSI::UpdateMatchState() {
-	//cvarManager->log("UpdateMatchState");
-	ServerWrapper wrapper = this->GetCurrentGameType();//this sets type (-1 for menu)
+void AuroraGSI::UpdateMatchState() {
+	ServerWrapper wrapper = GetCurrentGameType();//this sets type (-1 for menu)
 
 	if (!wrapper.IsNull()) 
-		this->UpdateState(wrapper);	
+		this->UpdateState(wrapper);		
 	else
 		this->ResetStates();
 
-	return true;
+	return;
 }
 
 
 void AuroraGSI::UpdateState(ServerWrapper wrapper)
 {
-
-	if(!wrapper.GetbUnlimitedTime() && !wrapper.GetbOverTime())
+	if (!wrapper.GetbUnlimitedTime() && !wrapper.GetbOverTime())
 		GameState.Match.Time = wrapper.GetSecondsRemaining();
+	else
+		GameState.Match.Time = -1;
 
-	auto teams = wrapper.GetTeams();
+	ArrayWrapper<TeamWrapper> teams = wrapper.GetTeams();
 	for (int i = 0; i < teams.Count(); i++) {
 		if (teams.Get(i).IsNull()) continue;
 
@@ -76,57 +68,47 @@ void AuroraGSI::UpdateState(ServerWrapper wrapper)
 		else
 			GameState.Match.Teams[i].Name = i == 0 ? "Blue" : "Orange";
 
-		auto asd = teams.Get(i).GetFontColor();
+		LinearColor asd = teams.Get(i).GetFontColor();
 		GameState.Match.Teams[i].Red = asd.R;
 		GameState.Match.Teams[i].Green = asd.G;
 		GameState.Match.Teams[i].Blue = asd.B;
 	}
 
+
 	auto players = wrapper.GetPRIs();
-	if (players.Count() > 0) {
-		auto local = players.Get(0);
+	if (players.Count() > 0 ) {
+		PriWrapper local = players.Get(0);
 
-		GameState.Player.Score = local.GetMatchScore();
-		GameState.Player.Goals = local.GetMatchGoals();
-		GameState.Player.Assists = local.GetMatchAssists();
-		GameState.Player.Saves = local.GetMatchSaves();
-		GameState.Player.Shots = local.GetMatchShots();
+		if (!local.IsNull()) {
+			GameState.Player.Score = local.GetMatchScore();
+			GameState.Player.Goals = local.GetMatchGoals();
+			GameState.Player.Assists = local.GetMatchAssists();
+			GameState.Player.Saves = local.GetMatchSaves();
+			GameState.Player.Shots = local.GetMatchShots();
 
-		if (!local.GetTeam().IsNull())
-			GameState.Player.Team = local.GetTeam().GetTeamIndex();
-		else
-			GameState.Player.Team = -1;
+			if (!local.GetTeam().IsNull())
+				GameState.Player.Team = local.GetTeam().GetTeamIndex();
+			else
+				GameState.Player.Team = -1;
 
-		if (!local.GetCar().IsNull() && !local.GetCar().GetBoostComponent().IsNull()) {
-			GameState.Player.CurrentBoostAmount = local.GetCar().GetBoostComponent().GetCurrentBoostAmount();
+			if (!local.GetCar().IsNull() && !local.GetCar().GetBoostComponent().IsNull())
+				GameState.Player.CurrentBoostAmount = local.GetCar().GetBoostComponent().GetCurrentBoostAmount();
+			else
+				GameState.Player.CurrentBoostAmount = -1;
 		}
 	}
 
-	//Playlist stuff not working for some reason, always returns garbage
-	//try {
-	//	auto mmrwrapper = gameWrapper->GetMMRWrapper();
-	//	if (mmrwrapper.memory_address != NULL) {
-	//		auto asd = mmrwrapper.GetCurrentPlaylist();
-	//		cvarManager->log("mmr mode " +
-	//			std::to_string(asd));
-	//	}
-	//	//GameSettingPlaylistWrapper playlistWrapper = wrapper.GetPlaylist();
-	//	//if (playlistWrapper.memory_address != NULL) {
-	//	//	GameState.Match.Mode = this->GetCurrentGameMode(playlistWrapper.GetPlaylistId());
-	//	//	cvarManager->log("set mode " +
-	//	//		std::to_string(playlistWrapper.GetPlaylistId()));
-	//	//	//	std::to_string(playlistWrapper.IsValid2()));
-	//	//}
-	//	
-	//}
-	//catch (...) {};
-	//cvarManager->log("4");
+	GameSettingPlaylistWrapper playlistWrapper = wrapper.GetPlaylist();
+	if (playlistWrapper.memory_address != NULL) {
+		GameState.Match.Mode = playlistWrapper.GetPlaylistId();
+		cvarManager->log("set mode " + std::to_string(playlistWrapper.GetPlaylistId()));
+	}
 }
 
 
 void AuroraGSI::ResetStates()
 {
-	GameState.Match.Mode = MatchMode::Undefined;
+	GameState.Match.Mode = -1;
 	GameState.Match.Type = MatchType::Menu;
 	GameState.Match.Time = -1;
 	GameState.Match.Teams[0].Index = -1;
@@ -152,67 +134,29 @@ void AuroraGSI::ResetStates()
 }
 
 ServerWrapper AuroraGSI::GetCurrentGameType() {
-	if (gameWrapper->IsInReplay()) {
+	if (this->gameWrapper->IsInReplay()) {
 		GameState.Match.Type = MatchType::Replay;
-		return gameWrapper->GetGameEventAsReplay().memory_address;
+		return this->gameWrapper->GetGameEventAsReplay();
 	}
-	else if (gameWrapper->IsInOnlineGame()) {
+	else if (this->gameWrapper->IsInOnlineGame()) {
 		GameState.Match.Type = MatchType::OnlineGame;
-		return gameWrapper->GetOnlineGame();
+		return this->gameWrapper->GetOnlineGame();
 	}
-	else if (gameWrapper->IsInFreeplay()) {
+	else if (this->gameWrapper->IsInFreeplay()) {
 		GameState.Match.Type = MatchType::Freeplay;
-		return gameWrapper->GetGameEventAsServer();
+		return this->gameWrapper->GetGameEventAsServer();
 	}
-	else if (gameWrapper->IsInCustomTraining()) {
+	else if (this->gameWrapper->IsInCustomTraining()) {
 		GameState.Match.Type = MatchType::Training;
-		return gameWrapper->GetGameEventAsServer();
+		return this->gameWrapper->GetGameEventAsServer();
 	}
-	else if (gameWrapper->IsSpectatingInOnlineGame()) {
+	else if (this->gameWrapper->IsSpectatingInOnlineGame()) {
 		GameState.Match.Type = MatchType::Spectate;
-		return gameWrapper->GetOnlineGame();
+		return this->gameWrapper->GetOnlineGame();
 	}
 	else {
 		GameState.Match.Type = MatchType::Menu;
 		return NULL;
-	}
-}
-
-//Code mostly taken from https://github.com/segalll/DiscordRPCPlugin
-MatchMode AuroraGSI::GetCurrentGameMode(int playlistId) {
-	switch (playlistId) {
-	case(1):
-		return MatchMode::CasualDuel;
-	case(2):
-		return MatchMode::CasualDoubles;
-	case(3):
-		return MatchMode::CasualStandard;
-	case(4):
-		return MatchMode::CasualChaos;
-	case(6):
-		return MatchMode::Private;
-	case(10):
-		return MatchMode::RankedDuel;
-	case(11):
-		return MatchMode::RankedDoubles;
-	case(12):
-		return MatchMode::RankedSoloStandard;
-	case(13):
-		return MatchMode::RankedStandard;
-	case(14):
-		return MatchMode::MutatorMashup;
-	case(22):
-		return MatchMode::Tournament;
-	case(27):
-		return MatchMode::RankedHoops;
-	case(28):
-		return MatchMode::RankedRumble;
-	case(29):
-		return MatchMode::RankedDropshot;
-	case(30):
-		return MatchMode::RankedSnowday;
-	default:
-		return MatchMode::Undefined;
 	}
 }
 #pragma endregion

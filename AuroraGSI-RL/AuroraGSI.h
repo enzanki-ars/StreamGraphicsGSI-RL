@@ -19,11 +19,10 @@ private:
 	void StartLoop();
 	void SendToAurora(std::string);
 	ServerWrapper GetCurrentGameType();
-	MatchMode GetCurrentGameMode(int playlistId);
 #pragma endregion
 
 #pragma region Update States
-	bool UpdateMatchState();
+	void UpdateMatchState();
 	void UpdateState(ServerWrapper wrapper);
 	void ResetStates();
 #pragma endregion
