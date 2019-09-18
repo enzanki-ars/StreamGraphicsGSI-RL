@@ -83,25 +83,35 @@ void AuroraGSI::UpdateState(ServerWrapper wrapper)
 
 
 	auto players = wrapper.GetPRIs();
-	if (players.Count() > 0 ) {
-		PriWrapper local = players.Get(0);
-
+	for (int i = 0; i < players.Count(); i++) {
+		auto local = players.Get(i);
 		if (!local.IsNull()) {
-			GameState.Player.Score = local.GetMatchScore();
-			GameState.Player.Goals = local.GetMatchGoals();
-			GameState.Player.Assists = local.GetMatchAssists();
-			GameState.Player.Saves = local.GetMatchSaves();
-			GameState.Player.Shots = local.GetMatchShots();
+			if (local.GetUniqueId().ID == this->gameWrapper->GetSteamID()) {
+				GameState.Player.Score = local.GetMatchScore();
+				GameState.Player.Goals = local.GetMatchGoals();
+				GameState.Player.Assists = local.GetMatchAssists();
+				GameState.Player.Saves = local.GetMatchSaves();
+				GameState.Player.Shots = local.GetMatchShots();
 
-			if (!local.GetTeam().IsNull())
-				GameState.Player.Team = local.GetTeam().GetTeamIndex();
-			else
-				GameState.Player.Team = -1;
+				if (!local.GetTeam().IsNull())
+					GameState.Player.Team = local.GetTeam().GetTeamIndex();
+				else
+					GameState.Player.Team = -1;
 
-			if (!local.GetCar().IsNull() && !local.GetCar().GetBoostComponent().IsNull())
-				GameState.Player.CurrentBoostAmount = local.GetCar().GetBoostComponent().GetCurrentBoostAmount();
-			else
-				GameState.Player.CurrentBoostAmount = -1;
+				if (!local.GetCar().IsNull() && !local.GetCar().GetBoostComponent().IsNull())
+					GameState.Player.CurrentBoostAmount = local.GetCar().GetBoostComponent().GetCurrentBoostAmount();
+				else
+					GameState.Player.CurrentBoostAmount = -1;
+			}
+		}
+		else {
+			GameState.Player.Score = -1;
+			GameState.Player.Goals = -1;
+			GameState.Player.Assists = -1;
+			GameState.Player.Saves = -1;
+			GameState.Player.Shots = -1;
+			GameState.Player.Team = -1;
+			GameState.Player.CurrentBoostAmount = -1;
 		}
 	}
 
