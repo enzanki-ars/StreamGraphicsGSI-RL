@@ -4,11 +4,21 @@
 #include "MatchNode.h"
 #include "PlayerNode.h"
 
+enum class GameStatus
+{
+	Menu = -1,
+	Replay,
+	OnlineGame,
+	Freeplay,
+	Training,
+	Spectate
+};
 
 class GameStateNode {
 public:
 	MatchNode Match;
 	PlayerNode Player;
+	GameStatus Status;
 
 	nlohmann::json GetJson();
 };

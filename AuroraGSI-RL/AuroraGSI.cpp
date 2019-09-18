@@ -2,7 +2,7 @@
 #include "AuroraGSI.h"
 
 //using std::placeholders::_1;
-BAKKESMOD_PLUGIN(AuroraGSI, "AuroraGSI", "0.0.2", PLUGINTYPE_THREADED)
+BAKKESMOD_PLUGIN(AuroraGSI, "AuroraGSI", "0.1.0", PLUGINTYPE_THREADED)
 
 #pragma region Plugin Methods
 void AuroraGSI::onLoad()
@@ -116,16 +116,18 @@ void AuroraGSI::UpdateState(ServerWrapper wrapper)
 	}
 
 	GameSettingPlaylistWrapper playlistWrapper = wrapper.GetPlaylist();
-	if (playlistWrapper.memory_address != NULL) {
-		GameState.Match.Mode = playlistWrapper.GetPlaylistId();
-	}
+	if (playlistWrapper.memory_address != NULL) 
+		GameState.Match.Playlist = playlistWrapper.GetPlaylistId();
+	else
+		GameState.Match.Playlist = -1;
 }
 
 
 void AuroraGSI::ResetStates()
 {
-	GameState.Match.Mode = -1;
-	GameState.Match.Type = MatchType::Menu;
+	GameState.Status = GameStatus::Menu;
+
+	GameState.Match.Playlist = -1;
 	GameState.Match.Time = -1;
 	GameState.Match.Teams[0].Index = -1;
 	GameState.Match.Teams[0].Goals = -1;
@@ -151,27 +153,27 @@ void AuroraGSI::ResetStates()
 
 ServerWrapper AuroraGSI::GetCurrentGameType() {
 	if (this->gameWrapper->IsInReplay()) {
-		GameState.Match.Type = MatchType::Replay;
+		GameState.Status = GameStatus::Replay;
 		return this->gameWrapper->GetGameEventAsReplay();
 	}
 	else if (this->gameWrapper->IsInOnlineGame()) {
-		GameState.Match.Type = MatchType::OnlineGame;
+		GameState.Status = GameStatus::OnlineGame;
 		return this->gameWrapper->GetOnlineGame();
 	}
 	else if (this->gameWrapper->IsInFreeplay()) {
-		GameState.Match.Type = MatchType::Freeplay;
+		GameState.Status = GameStatus::Freeplay;
 		return this->gameWrapper->GetGameEventAsServer();
 	}
 	else if (this->gameWrapper->IsInCustomTraining()) {
-		GameState.Match.Type = MatchType::Training;
+		GameState.Status = GameStatus::Training;
 		return this->gameWrapper->GetGameEventAsServer();
 	}
 	else if (this->gameWrapper->IsSpectatingInOnlineGame()) {
-		GameState.Match.Type = MatchType::Spectate;
+		GameState.Status = GameStatus::Spectate;
 		return this->gameWrapper->GetOnlineGame();
 	}
 	else {
-		GameState.Match.Type = MatchType::Menu;
+		GameState.Status = GameStatus::Menu;
 		return NULL;
 	}
 }
