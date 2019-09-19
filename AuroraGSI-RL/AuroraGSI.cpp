@@ -13,22 +13,20 @@ void AuroraGSI::onLoad()
 void AuroraGSI::onUnload()
 {
 	ok = false;
-	cvarManager->log("false");
 }
 #pragma endregion
 
 #pragma region Aurora
 void AuroraGSI::StartLoop() {
-	while (ok) {
+	if (ok) {
 		gameWrapper->Execute(std::bind(&AuroraGSI::UpdateMatchState, this));
 		string newJson = GameState.GetJson().dump();
 		if (Json != newJson) {
 			Json = newJson;
 			SendToAurora(newJson);
 		}	
-		Sleep(100);
+		this->gameWrapper->SetTimeout(std::bind(&AuroraGSI::StartLoop, this), 0.100);
 	}
-	cvarManager->log("stop");
 }
 
 void AuroraGSI::SendToAurora(std::string data)

@@ -14,6 +14,7 @@ private:
 	GameStateNode GameState;
 	std::string Json;
 	bool ok = true;
+	bool stopped = false;
 #pragma endregion
 
 #pragma region Aurora
