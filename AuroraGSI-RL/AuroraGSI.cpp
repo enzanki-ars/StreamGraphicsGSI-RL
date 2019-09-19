@@ -1,8 +1,7 @@
 #include "HTTPRequest.hpp"
 #include "AuroraGSI.h"
 
-//using std::placeholders::_1;
-BAKKESMOD_PLUGIN(AuroraGSI, "AuroraGSI", "0.1.0", PLUGINTYPE_THREADED)
+BAKKESMOD_PLUGIN(AuroraGSI, "AuroraGSI", "0.1.1", PLUGINTYPE_THREADED)
 
 #pragma region Plugin Methods
 void AuroraGSI::onLoad()
