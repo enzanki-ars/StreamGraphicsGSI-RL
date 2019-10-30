@@ -149,13 +149,17 @@ void AuroraGSI::ResetStates()
 }
 
 ServerWrapper AuroraGSI::GetCurrentGameType() {
-	if (this->gameWrapper->IsInReplay()) {
+	if (this->gameWrapper->IsInOnlineGame()) {
+		GameState.Status = GameStatus::InGame;
+		return this->gameWrapper->GetOnlineGame();
+	}
+	else if (this->gameWrapper->IsSpectatingInOnlineGame()) {
+		GameState.Status = GameStatus::Spectate;
+		return this->gameWrapper->GetOnlineGame();
+	}
+	else if (this->gameWrapper->IsInReplay()) {
 		GameState.Status = GameStatus::Replay;
 		return this->gameWrapper->GetGameEventAsReplay();
-	}
-	else if (this->gameWrapper->IsInOnlineGame()) {
-		GameState.Status = GameStatus::OnlineGame;
-		return this->gameWrapper->GetOnlineGame();
 	}
 	else if (this->gameWrapper->IsInFreeplay()) {
 		GameState.Status = GameStatus::Freeplay;
@@ -165,9 +169,9 @@ ServerWrapper AuroraGSI::GetCurrentGameType() {
 		GameState.Status = GameStatus::Training;
 		return this->gameWrapper->GetGameEventAsServer();
 	}
-	else if (this->gameWrapper->IsSpectatingInOnlineGame()) {
-		GameState.Status = GameStatus::Spectate;
-		return this->gameWrapper->GetOnlineGame();
+	else if (this->gameWrapper->IsInGame()) {
+		GameState.Status = GameStatus::InGame;
+		return this->gameWrapper->GetGameEventAsServer();
 	}
 	else {
 		GameState.Status = GameStatus::Menu;
@@ -175,4 +179,3 @@ ServerWrapper AuroraGSI::GetCurrentGameType() {
 	}
 }
 #pragma endregion
-

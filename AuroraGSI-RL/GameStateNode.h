@@ -8,7 +8,7 @@ enum class GameStatus
 {
 	Menu = -1,
 	Replay,
-	OnlineGame,
+	InGame,
 	Freeplay,
 	Training,
 	Spectate
