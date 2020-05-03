@@ -3,7 +3,7 @@
 
 #include <sstream>
 
-BAKKESMOD_PLUGIN(StreamGraphicsGSI, "StreamGraphicsGSI", "0.1.1", PLUGINTYPE_THREADED)
+BAKKESMOD_PLUGIN(StreamGraphicsGSI, "StreamGraphicsGSI", "1.0.1", PLUGINTYPE_THREADED)
 
 #pragma region Plugin Methods
 void StreamGraphicsGSI::onLoad()
