@@ -12,6 +12,7 @@ nlohmann::json TeamNode::GetJson()
 	json_team["blue"] = Blue;
 
 	json_team["boost"] = TeamBoost;
+
 	if (PlayerCount > 0) {
 		json_team["boost_string"] = std::to_string(int((TeamBoost * 100) / PlayerCount)) + "%";
 	}

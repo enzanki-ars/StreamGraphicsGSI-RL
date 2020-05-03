@@ -1,10 +1,20 @@
 # StreamGraphicsGSI-RL
 
-Version: 1.0.1
+Version: 1.0.2
 
 Orignal coded based on [diogotr7/AuroraGSI-RocketLeague](https://github.com/diogotr7/AuroraGSI-RocketLeague).
 
 Designed for use with [OSU Buckeye Gaming Collective's Stream Graphics program](https://gitlab.com/osubgc/stream-graphics).
+
+## Setup
+
+Once installed, it's best to create a new line in the `cfg/binds.cfg` file with the following line:
+
+```
+bind R "plugin reload streamgraphicsgsi-rl"
+```
+
+This will ensure that you can reload the plugin as needed.  Sometimes the plugin does not start when joining a match, and pressing `R` in this case will reload the plugin and start the integration.
 
 ## Notes:
 

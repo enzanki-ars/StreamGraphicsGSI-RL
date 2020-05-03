@@ -3,7 +3,7 @@
 
 #include <sstream>
 
-BAKKESMOD_PLUGIN(StreamGraphicsGSI, "StreamGraphicsGSI", "1.0.1", PLUGINTYPE_THREADED)
+BAKKESMOD_PLUGIN(StreamGraphicsGSI, "StreamGraphicsGSI", "1.0.2", PLUGINTYPE_THREADED)
 
 #pragma region Plugin Methods
 void StreamGraphicsGSI::onLoad()
@@ -70,8 +70,6 @@ void StreamGraphicsGSI::UpdateState(ServerWrapper wrapper)
 
 		GameState.Match.Teams[i].Goals = teams.Get(i).GetScore();
 		GameState.Match.Teams[i].Index = teams.Get(i).GetTeamIndex();
-
-		GameState.Match.Teams[i].PlayerCount = teams.Get(i).GetMembers().Count();
 
 		if (!teams.Get(i).GetSanitizedTeamName().IsNull())
 			GameState.Match.Teams[i].Name = teams.Get(i).GetSanitizedTeamName().ToString();
@@ -141,6 +139,8 @@ void StreamGraphicsGSI::UpdateState(ServerWrapper wrapper)
 
 	GameState.Match.Teams[0].TeamBoost = 0;
 	GameState.Match.Teams[1].TeamBoost = 0;
+	GameState.Match.Teams[0].PlayerCount = 0;
+	GameState.Match.Teams[1].PlayerCount = 0;
 
 	for (int i = 0; i < players.Count(); i++) {
 		PriWrapper player = players.Get(i);
@@ -185,6 +185,7 @@ void StreamGraphicsGSI::UpdateState(ServerWrapper wrapper)
 			GameState.SpecPlayers[specSlot - 1].CurrentBoostAmount = boost;
 
 			GameState.Match.Teams[team].TeamBoost += boost;
+			GameState.Match.Teams[team].PlayerCount += 1;
 		}
 	}
 }
