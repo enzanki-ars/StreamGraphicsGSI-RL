@@ -16,6 +16,8 @@ bind R "plugin reload streamgraphicsgsi-rl"
 
 This will ensure that you can reload the plugin as needed.  Sometimes the plugin does not start when joining a match, and pressing `R` in this case will reload the plugin and start the integration.
 
+Additionally, the URL where the GSI JSON will be sent to via HTTP POST is configured via the `streamgraphics_gsi_url` variable. This can be set by pressing `F6` and typing `streamgraphics_gsi_url "http://localhost:8080"`, replacing the url with anything you would like the data to be sent to.  This same text above can also be added to the cfg/config.cfg file in the BakkesMod folder where it can be automatically set when Rocket League starts.
+
 ## Notes:
 
 * If you are not a Spectator in an online game, you will most likely get scrambled boost values for the opposing team.  Only rely on the boost values when a Spectator.
