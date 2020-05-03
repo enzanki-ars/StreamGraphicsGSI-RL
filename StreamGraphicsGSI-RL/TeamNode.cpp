@@ -4,6 +4,7 @@ nlohmann::json TeamNode::GetJson()
 {
 	nlohmann::json json_team;
 	json_team["goals"] = Goals;
+	json_team["player_count"] = PlayerCount;
 	json_team["name"] = Name;
 
 	json_team["red"] = Red;
@@ -11,7 +12,7 @@ nlohmann::json TeamNode::GetJson()
 	json_team["blue"] = Blue;
 
 	json_team["boost"] = TeamBoost;
-	json_team["boost_string"] = std::to_string(int((TeamBoost * 100)/4)) + "%";
+	json_team["boost_string"] = std::to_string(int((TeamBoost * 100)/PlayerCount)) + "%";
 
 	return json_team;
 };

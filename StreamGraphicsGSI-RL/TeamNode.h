@@ -4,6 +4,7 @@
 class TeamNode {
 public:
 	int Index = 0;
+	int PlayerCount = 0;
 	int Goals = 0;
 
 	float Red = 0;

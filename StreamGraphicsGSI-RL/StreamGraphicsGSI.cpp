@@ -71,6 +71,8 @@ void StreamGraphicsGSI::UpdateState(ServerWrapper wrapper)
 		GameState.Match.Teams[i].Goals = teams.Get(i).GetScore();
 		GameState.Match.Teams[i].Index = teams.Get(i).GetTeamIndex();
 
+		GameState.Match.Teams[i].PlayerCount = teams.Get(i).GetMembers().Count();
+
 		if (!teams.Get(i).GetSanitizedTeamName().IsNull())
 			GameState.Match.Teams[i].Name = teams.Get(i).GetSanitizedTeamName().ToString();
 		else
@@ -196,6 +198,7 @@ void StreamGraphicsGSI::ResetStates()
 	GameState.Match.Time = 0;
 
 	GameState.Match.Teams[0].Index = 0;
+	GameState.Match.Teams[0].PlayerCount = 0;
 	GameState.Match.Teams[0].Goals = 0;
 	GameState.Match.Teams[0].Red = 0;
 	GameState.Match.Teams[0].Green = 0;
@@ -204,6 +207,7 @@ void StreamGraphicsGSI::ResetStates()
 	GameState.Match.Teams[0].Name = "";
 
 	GameState.Match.Teams[1].Index = 0;
+	GameState.Match.Teams[1].PlayerCount = 0;
 	GameState.Match.Teams[1].Goals = 0;
 	GameState.Match.Teams[1].Red = 0;
 	GameState.Match.Teams[1].Green = 0;
