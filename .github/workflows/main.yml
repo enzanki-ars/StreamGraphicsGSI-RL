@@ -1,0 +1,24 @@
+name: CI
+
+on:
+  push:
+    branches: [ stream-graphics ]
+  pull_request:
+    branches: [ stream-graphics ]
+
+jobs:
+  build:
+    runs-on: windows-2019
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: true
+      - name: Build 
+        run: |
+           cd "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\"
+           .\MSBuild.exe $Env:GITHUB_WORKSPACE\StreamGraphicsGSI-RL.sln
+      - uses: actions/upload-artifact@v2
+        with:
+          name: StreamGraphicsGSI-RL.dll
+          path: x64/Release/StreamGraphicsGSI-RL.dll
