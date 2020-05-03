@@ -8,6 +8,7 @@ BAKKESMOD_PLUGIN(StreamGraphicsGSI, "StreamGraphicsGSI", "0.1.1", PLUGINTYPE_THR
 #pragma region Plugin Methods
 void StreamGraphicsGSI::onLoad()
 {
+	cvarManager->registerCvar("streamgraphics_gsi_url", "http://localhost:8000/api/v1/set_multiple_for_path_and_flatten/data/com/rocketleague/gsi", "HTTP server url to send the JSON post to.", true, false, 0, false, 0, true);
 	this->StartLoop();
 }
 
@@ -33,10 +34,11 @@ void StreamGraphicsGSI::StartLoop() {
 void StreamGraphicsGSI::SendToStreamGraphics(std::string data)
 {
 	try {
-		http::Request request("http://localhost:9088");
+		http::Request request(cvarManager->getCvar("streamgraphics_gsi_url").getStringValue());
 		(void)request.send("POST", data, { "Content-Type: application/json" });
 	}
 	catch (...) {
+		cvarManager->log("Failed GSI HTTP POST: Please reload the plugin to try again.");
 		ok = false;
 	}
 }
