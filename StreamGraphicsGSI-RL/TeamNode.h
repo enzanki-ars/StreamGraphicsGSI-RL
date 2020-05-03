@@ -3,11 +3,15 @@
 
 class TeamNode {
 public:
-	int Index = -1;
-	int Goals = -1;
-	float Red = -1;
-	float Green = -1;
-	float Blue = -1;
+	int Index = 0;
+	int Goals = 0;
+
+	float Red = 0;
+	float Green = 0;
+	float Blue = 0;
+
+	float TeamBoost = 0.0;
+
 	std::string Name = "";
 
 	nlohmann::json GetJson();

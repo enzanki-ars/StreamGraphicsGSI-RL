@@ -18,6 +18,7 @@ class GameStateNode {
 public:
 	MatchNode Match;
 	PlayerNode Player;
+	PlayerNode SpecPlayers[8];
 	GameStatus Status;
 
 	nlohmann::json GetJson();

@@ -1,0 +1,3 @@
+[submodule "BakkesModSDK"]
+	path = BakkesModSDK
+	url = https://github.com/bakkesmodorg/BakkesModSDK.git

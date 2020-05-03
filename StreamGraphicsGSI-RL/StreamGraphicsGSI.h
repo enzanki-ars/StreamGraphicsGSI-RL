@@ -4,7 +4,7 @@
 #include "GameStateNode.h"
 
 
-class AuroraGSI : public BakkesMod::Plugin::BakkesModPlugin
+class StreamGraphicsGSI : public BakkesMod::Plugin::BakkesModPlugin
 {
 public:
 	virtual void onLoad();
@@ -16,9 +16,9 @@ private:
 	bool ok = true;
 #pragma endregion
 
-#pragma region Aurora
+#pragma region StreamGraphics
 	void StartLoop();
-	void SendToAurora(std::string);
+	void SendToStreamGraphics(std::string);
 #pragma endregion
 
 #pragma region Update States
