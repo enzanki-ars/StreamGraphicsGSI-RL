@@ -51,6 +51,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ProviderNode.cpp" />
     <ClCompile Include="StreamGraphicsGSI.cpp" />
     <ClCompile Include="GameStateNode.cpp" />
     <ClCompile Include="MatchNode.cpp" />
@@ -59,6 +60,7 @@
     <ClCompile Include="TeamNode.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ProviderNode.h" />
     <ClInclude Include="StreamGraphicsGSI.h" />
     <ClInclude Include="GameStateNode.h" />
     <ClInclude Include="PlayerNode.h" />

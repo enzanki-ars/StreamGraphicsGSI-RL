@@ -33,6 +33,9 @@
     <ClCompile Include="StreamGraphicsGSI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ProviderNode.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PlayerNode.h">
@@ -45,6 +48,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="StreamGraphicsGSI.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ProviderNode.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
