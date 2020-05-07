@@ -6,6 +6,8 @@ public:
 	int Team = -1;
 	std::string Name = "";
 
+	int Ping = 0;
+
 	int Score = 0;
 	int Goals = 0;
 	int Assists = 0;

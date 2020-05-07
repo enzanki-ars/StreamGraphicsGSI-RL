@@ -26,7 +26,7 @@ void StreamGraphicsGSI::StartLoop() {
 		if (Json != newJson) {
 			Json = newJson;
 			SendToStreamGraphics(newJson);
-		}	
+		}
 		this->gameWrapper->SetTimeout(std::bind(&StreamGraphicsGSI::StartLoop, this), 0.100);
 	}
 }
@@ -48,8 +48,8 @@ void StreamGraphicsGSI::SendToStreamGraphics(std::string data)
 void StreamGraphicsGSI::UpdateMatchState() {
 	ServerWrapper wrapper = GetCurrentGameType();//this sets type (-1 for menu)
 
-	if (!wrapper.IsNull()) 
-		this->UpdateState(wrapper);		
+	if (!wrapper.IsNull())
+		this->UpdateState(wrapper);
 	else
 		this->ResetStates();
 
@@ -100,6 +100,7 @@ void StreamGraphicsGSI::UpdateState(ServerWrapper wrapper)
 				GameState.Player.SpecSlot = local.GetSpectatorShortcut();
 
 				GameState.Player.Name = local.GetPlayerName().ToString();
+				GameState.Player.Ping = (int)local.GetExactPing();
 
 				if (!local.GetTeam().IsNull())
 					GameState.Player.Team = local.GetTeam().GetTeamIndex();
@@ -115,6 +116,7 @@ void StreamGraphicsGSI::UpdateState(ServerWrapper wrapper)
 		else {
 			GameState.Player.Team = 0;
 			GameState.Player.Name = "";
+			GameState.Player.Ping = 0;
 
 			GameState.Player.Score = 0;
 			GameState.Player.Goals = 0;
@@ -132,7 +134,7 @@ void StreamGraphicsGSI::UpdateState(ServerWrapper wrapper)
 	}
 
 	GameSettingPlaylistWrapper playlistWrapper = wrapper.GetPlaylist();
-	if (playlistWrapper.memory_address != NULL) 
+	if (playlistWrapper.memory_address != NULL)
 		GameState.Match.Playlist = playlistWrapper.GetPlaylistId();
 	else
 		GameState.Match.Playlist = -1;
@@ -149,6 +151,8 @@ void StreamGraphicsGSI::UpdateState(ServerWrapper wrapper)
 		int team = player.GetTeamNum();
 		std::string name = player.GetPlayerName().ToString();
 
+		int ping = player.GetExactPing();
+
 		int score = player.GetMatchScore();
 		int goals = player.GetMatchGoals();
 		int assists = player.GetMatchAssists();
@@ -161,15 +165,16 @@ void StreamGraphicsGSI::UpdateState(ServerWrapper wrapper)
 		int specSlot = player.GetSpectatorShortcut();
 
 		float boost = 0;
-		
+
 		if (!player.GetCar().IsNull() && !player.GetCar().GetBoostComponent().IsNull())
 		{
 			boost = player.GetCar().GetBoostComponent().GetCurrentBoostAmount();
 		}
-		
+
 		if (specSlot >= 1 && specSlot <= 8 && (team == 0 || team == 1)) {
 			GameState.SpecPlayers[specSlot - 1].Team = team;
 			GameState.SpecPlayers[specSlot - 1].Name = name;
+			GameState.SpecPlayers[specSlot - 1].Ping = ping;
 
 			GameState.SpecPlayers[specSlot - 1].Score = score;
 			GameState.SpecPlayers[specSlot - 1].Goals = goals;
@@ -235,6 +240,7 @@ void StreamGraphicsGSI::ResetStates()
 	for (int i = 0; i < 9; i++) {
 		GameState.SpecPlayers[i].Team = 0;
 		GameState.SpecPlayers[i].Name = "";
+		GameState.SpecPlayers[i].Ping = 0;
 
 		GameState.SpecPlayers[i].Assists = 0;
 		GameState.SpecPlayers[i].Goals = 0;

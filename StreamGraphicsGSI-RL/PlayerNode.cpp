@@ -6,6 +6,7 @@ nlohmann::json PlayerNode::GetJson()
 
 	json_player["team"] = Team;
 	json_player["name"] = Name;
+	json_player["ping"] = Ping;
 
 	json_player["score"] = Score;
 	json_player["goals"] = Goals;
