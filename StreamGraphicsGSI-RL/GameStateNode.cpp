@@ -6,7 +6,12 @@ nlohmann::json GameStateNode::GetJson()
 	data["provider"]["name"] = "rocketleague";
 	data["provider"]["appid"] = 13377331;
 	data["game"]["status"] = Status;
+
 	data["player"] = Player.GetJson();
+	data["curr_spec"] = CurrentSpec.GetJson();
+
+	data["is_spec_pov"] = IsSpectatingPlayerPOV;
+	data["in_replay_mode"] = InReplayMode;
 
 	data["spec_players"]["1"] = SpecPlayers[0].GetJson();
 	data["spec_players"]["2"] = SpecPlayers[1].GetJson();

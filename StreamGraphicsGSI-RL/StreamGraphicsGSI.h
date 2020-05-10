@@ -21,6 +21,11 @@ private:
 	void SendToStreamGraphics(std::string);
 #pragma endregion
 
+#pragma region Events
+	void ReplayStartEvent(string eventName);
+	void ReplayEndEvent(string eventName);
+#pragma endregion
+
 #pragma region Update States
 	void UpdateMatchState();
 	void UpdateState(ServerWrapper wrapper);

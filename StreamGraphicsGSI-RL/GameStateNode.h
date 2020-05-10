@@ -18,8 +18,12 @@ class GameStateNode {
 public:
 	MatchNode Match;
 	PlayerNode Player;
+	PlayerNode CurrentSpec;
 	PlayerNode SpecPlayers[8];
 	GameStatus Status;
+
+	bool IsSpectatingPlayerPOV = false;
+	bool InReplayMode = false;
 
 	nlohmann::json GetJson();
 };

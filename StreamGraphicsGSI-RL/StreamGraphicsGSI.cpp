@@ -2,13 +2,20 @@
 #include "StreamGraphicsGSI.h"
 
 #include <sstream>
+#include <iomanip>
 
 BAKKESMOD_PLUGIN(StreamGraphicsGSI, "StreamGraphicsGSI", "1.1.0", PLUGINTYPE_THREADED)
+
+using placeholders::_1;
 
 #pragma region Plugin Methods
 void StreamGraphicsGSI::onLoad()
 {
-	cvarManager->registerCvar("streamgraphics_gsi_url", "http://localhost:8000/api/v1/set_multiple_for_path_and_flatten/data/com/rocketleague/gsi", "HTTP server url to send the JSON post to.", true, false, 0, false, 0, true);
+	cvarManager->registerCvar("streamgraphics_gsi_url", "http://192.168.1.70:8000/api/v1/set_multiple_for_path_and_flatten/data/com/rocketleague/gsi", "HTTP server url to send the JSON post to.", true, false, 0, false, 0, true);
+
+	this->gameWrapper->HookEventPost("Function GameEvent_Soccar_TA.ReplayPlayback.BeginState", std::bind(&StreamGraphicsGSI::ReplayStartEvent, this, _1));
+	this->gameWrapper->HookEventPost("Function GameEvent_Soccar_TA.ReplayPlayback.EndState", std::bind(&StreamGraphicsGSI::ReplayEndEvent, this, _1));
+
 	this->StartLoop();
 }
 
@@ -38,10 +45,23 @@ void StreamGraphicsGSI::SendToStreamGraphics(std::string data)
 		(void)request.send("POST", data, { "Content-Type: application/json" });
 	}
 	catch (...) {
-		cvarManager->log("Failed GSI HTTP POST: Please reload the plugin to try again.");
+		cvarManager->log("Failed GSI HTTP POST: Please reload the plugin to try again. Using URL - " + cvarManager->getCvar("streamgraphics_gsi_url").getStringValue());
 		ok = false;
 	}
 }
+#pragma endregion
+
+#pragma region Events
+void StreamGraphicsGSI::ReplayStartEvent(string eventName) {
+	GameState.InReplayMode = true;
+	cvarManager->log("Replay Started");
+}
+
+void StreamGraphicsGSI::ReplayEndEvent(string eventName) {
+	GameState.InReplayMode = false;
+	cvarManager->log("Replay Ended");
+}
+
 #pragma endregion
 
 #pragma region Update State
@@ -57,12 +77,39 @@ void StreamGraphicsGSI::UpdateMatchState() {
 }
 
 
-void StreamGraphicsGSI::UpdateState(ServerWrapper wrapper)
-{
-	if (!wrapper.GetbUnlimitedTime() && !wrapper.GetbOverTime())
+void StreamGraphicsGSI::UpdateState(ServerWrapper wrapper) {
+
+	if (!wrapper.GetbUnlimitedTime() && !wrapper.GetbOverTime()) {
 		GameState.Match.Time = wrapper.GetSecondsRemaining();
-	else
+		GameState.Match.Overtime = 0;
+
+		std::string minutes = std::to_string(wrapper.GetSecondsRemaining() / 60);
+
+		std::stringstream seconds_stream;
+		seconds_stream << std::setw(2) << std::setfill('0') << std::to_string(wrapper.GetSecondsRemaining() % 60);
+
+		std::string seconds = seconds_stream.str();
+
+		GameState.Match.TimeString = minutes + ":" + seconds;
+	}
+	else if (!wrapper.GetbUnlimitedTime() && wrapper.GetbOverTime()) {
+		GameState.Match.Time = (int) wrapper.GetOvertimeTimePlayed();
+		GameState.Match.Overtime = 1;
+
+		std::string minutes = std::to_string(((int) wrapper.GetOvertimeTimePlayed()) / 60);
+
+		std::stringstream seconds_stream;
+		seconds_stream << std::setw(2) << std::setfill('0') << std::to_string(((int) wrapper.GetOvertimeTimePlayed()) % 60);
+
+		std::string seconds = seconds_stream.str();
+
+		GameState.Match.TimeString = "+" + minutes + ":" + seconds;
+	}
+	else {
 		GameState.Match.Time = -1;
+
+		GameState.Match.TimeString = "Unlimited";
+	}
 
 	ArrayWrapper<TeamWrapper> teams = wrapper.GetTeams();
 	for (int i = 0; i < teams.Count(); i++) {
@@ -139,6 +186,74 @@ void StreamGraphicsGSI::UpdateState(ServerWrapper wrapper)
 	else
 		GameState.Match.Playlist = -1;
 
+	if (!gameWrapper->GetCamera().IsNull()) {
+		PriWrapper spec_player = PriWrapper(reinterpret_cast<std::uintptr_t>(gameWrapper->GetCamera().GetViewTarget().PRI));
+		if (!spec_player.IsNull() && !spec_player.GetCar().IsNull()) {
+			std::string playerID = std::to_string(spec_player.GetUniqueId().ID);
+			int team = spec_player.GetTeamNum();
+			std::string name = spec_player.GetPlayerName().ToString();
+
+			int ping = spec_player.GetExactPing();
+
+			int score = spec_player.GetMatchScore();
+			int goals = spec_player.GetMatchGoals();
+			int assists = spec_player.GetMatchAssists();
+			int saves = spec_player.GetMatchSaves();
+			int shots = spec_player.GetMatchShots();
+
+			int ownGoals = spec_player.GetMatchOwnGoals();
+			int demolishes = spec_player.GetMatchDemolishes();
+
+			int specSlot = spec_player.GetSpectatorShortcut();
+
+			float boost = 0;
+
+			if (!spec_player.GetCar().IsNull() && !spec_player.GetCar().GetBoostComponent().IsNull())
+			{
+				boost = spec_player.GetCar().GetBoostComponent().GetCurrentBoostAmount();
+			}
+
+			GameState.CurrentSpec.Team = team;
+			GameState.CurrentSpec.Name = name;
+			GameState.CurrentSpec.Ping = ping;
+
+			GameState.CurrentSpec.Score = score;
+			GameState.CurrentSpec.Goals = goals;
+			GameState.CurrentSpec.Assists = assists;
+			GameState.CurrentSpec.Saves = saves;
+			GameState.CurrentSpec.Shots = shots;
+
+			GameState.CurrentSpec.OwnGoals = ownGoals;
+			GameState.CurrentSpec.Demolishes = demolishes;
+
+			GameState.CurrentSpec.SpecSlot = specSlot;
+
+			GameState.CurrentSpec.CurrentBoostAmount = boost;
+
+			GameState.IsSpectatingPlayerPOV = true;
+		}
+		else {
+			GameState.CurrentSpec.Team = -1;
+			GameState.CurrentSpec.Name = "";
+			GameState.CurrentSpec.Ping = 0;
+
+			GameState.CurrentSpec.Score = 0;
+			GameState.CurrentSpec.Goals = 0;
+			GameState.CurrentSpec.Assists = 0;
+			GameState.CurrentSpec.Saves = 0;
+			GameState.CurrentSpec.Shots = 0;
+
+			GameState.CurrentSpec.OwnGoals = 0;
+			GameState.CurrentSpec.Demolishes = 0;
+
+			GameState.CurrentSpec.SpecSlot = 0;
+
+			GameState.CurrentSpec.CurrentBoostAmount = 0;
+
+			GameState.IsSpectatingPlayerPOV = false;
+		}
+	}
+
 	GameState.Match.Teams[0].TeamBoost = 0;
 	GameState.Match.Teams[1].TeamBoost = 0;
 	GameState.Match.Teams[0].PlayerCount = 0;
@@ -202,6 +317,8 @@ void StreamGraphicsGSI::ResetStates()
 
 	GameState.Match.Playlist = -1;
 	GameState.Match.Time = 0;
+	GameState.Match.Overtime = FALSE;
+	GameState.Match.TimeString = "";
 
 	GameState.Match.Teams[0].Index = 0;
 	GameState.Match.Teams[0].PlayerCount = 0;
@@ -212,7 +329,7 @@ void StreamGraphicsGSI::ResetStates()
 	GameState.Match.Teams[0].TeamBoost = 0.0;
 	GameState.Match.Teams[0].Name = "";
 
-	GameState.Match.Teams[1].Index = 0;
+	GameState.Match.Teams[1].Index = 1;
 	GameState.Match.Teams[1].PlayerCount = 0;
 	GameState.Match.Teams[1].Goals = 0;
 	GameState.Match.Teams[1].Red = 0;
@@ -221,7 +338,7 @@ void StreamGraphicsGSI::ResetStates()
 	GameState.Match.Teams[1].TeamBoost = 0.0;
 	GameState.Match.Teams[1].Name = "";
 
-	GameState.Player.Team = 0;
+	GameState.Player.Team = -1;
 	GameState.Player.Name = "";
 
 	GameState.Player.Assists = 0;
@@ -237,8 +354,29 @@ void StreamGraphicsGSI::ResetStates()
 
 	GameState.Player.CurrentBoostAmount = 0;
 
-	for (int i = 0; i < 9; i++) {
-		GameState.SpecPlayers[i].Team = 0;
+
+	GameState.CurrentSpec.Team = -1;
+	GameState.CurrentSpec.Name = "";
+	GameState.CurrentSpec.Ping = 0;
+
+	GameState.CurrentSpec.Score = 0;
+	GameState.CurrentSpec.Goals = 0;
+	GameState.CurrentSpec.Assists = 0;
+	GameState.CurrentSpec.Saves = 0;
+	GameState.CurrentSpec.Shots = 0;
+
+	GameState.CurrentSpec.OwnGoals = 0;
+	GameState.CurrentSpec.Demolishes = 0;
+
+	GameState.CurrentSpec.SpecSlot = 0;
+
+	GameState.CurrentSpec.CurrentBoostAmount = 0;
+
+	GameState.IsSpectatingPlayerPOV = false;
+	GameState.InReplayMode = false;
+
+	for (int i = 0; i < 8; i++) {
+		GameState.SpecPlayers[i].Team = -1;
 		GameState.SpecPlayers[i].Name = "";
 		GameState.SpecPlayers[i].Ping = 0;
 
