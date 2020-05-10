@@ -1,6 +1,6 @@
 # StreamGraphicsGSI-RL
 
-Version: 1.1.0
+Version: 1.2.0
 
 Orignal coded based on [diogotr7/AuroraGSI-RocketLeague](https://github.com/diogotr7/AuroraGSI-RocketLeague).
 
@@ -23,6 +23,8 @@ Additionally, the URL where the GSI JSON will be sent to via HTTP POST is config
 * If you are not a Spectator in an online game, you will most likely get scrambled boost values for the opposing team.  Only rely on the boost values when a Spectator.
 
 ## Example JSON Output
+
+**Note:** Example may not be complete and list all fields.
 
 ```json
 {
