@@ -4,13 +4,18 @@ Version: 1.2.0
 
 Orignal coded based on [diogotr7/AuroraGSI-RocketLeague](https://github.com/diogotr7/AuroraGSI-RocketLeague).
 
+Additional ideas and code used as examples pulled from:
+
+- [SOS Overlay System](https://gitlab.com/bakkesplugins/sos/sos-plugin)
+- [ReplayStatsBox](https://github.com/CinderBlocc/ReplayStatsBox)
+
 Designed for use with [OSU Buckeye Gaming Collective's Stream Graphics program](https://gitlab.com/osubgc/stream-graphics).
 
 ## Setup
 
 Once installed, it's best to create a new line in the `cfg/binds.cfg` file with the following line:
 
-```
+```text
 bind R "plugin reload streamgraphicsgsi-rl"
 ```
 
@@ -18,9 +23,9 @@ This will ensure that you can reload the plugin as needed.  Sometimes the plugin
 
 Additionally, the URL where the GSI JSON will be sent to via HTTP POST is configured via the `streamgraphics_gsi_url` variable. This can be set by pressing `F6` and typing `streamgraphics_gsi_url "http://localhost:8080"`, replacing the url with anything you would like the data to be sent to.  This same text above can also be added to the cfg/config.cfg file in the BakkesMod folder where it can be automatically set when Rocket League starts.
 
-## Notes:
+## Notes
 
-* If you are not a Spectator in an online game, you will most likely get scrambled boost values for the opposing team.  Only rely on the boost values when a Spectator.
+- If you are not a Spectator in an online game, you will most likely get scrambled boost values for the opposing team.  Only rely on the boost values when a Spectator.
 
 ## Example JSON Output
 
