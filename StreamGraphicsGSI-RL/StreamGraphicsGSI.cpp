@@ -4,16 +4,20 @@
 #include <sstream>
 #include <iomanip>
 
-BAKKESMOD_PLUGIN(StreamGraphicsGSI, "StreamGraphicsGSI", "1.3.1", PLUGINTYPE_THREADED)
+BAKKESMOD_PLUGIN(StreamGraphicsGSI, "StreamGraphicsGSI", "1.4.0", PLUGINTYPE_THREADED)
 
 using placeholders::_1;
 
 const float COLOR_DARKEN = 0.75;
+bool PLAYER_INFO_DISPLAY_STATE = false;
 
 #pragma region Plugin Methods
 void StreamGraphicsGSI::onLoad()
 {
-	cvarManager->registerCvar("streamgraphics_gsi_url", "http://192.168.1.70:8000/api/v1/set_multiple_for_path_and_flatten/data/com/rocketleague/gsi", "HTTP server url to send the JSON post to.", true, false, 0, false, 0, true);
+	cvarManager->registerCvar("streamgraphics_gsi_url", "http://192.168.1.70:8000/api/v1/", "Base HTTP server url.", true, false, 0, false, 0, true);
+	cvarManager->registerCvar("streamgraphics_gsi_url_data", "set_multiple_for_path_and_flatten/data/com/rocketleague/gsi", "HTTP server url to send the JSON data to.", true, false, 0, false, 0, true);
+	cvarManager->registerCvar("streamgraphics_gsi_url_show_player_info", "easy_set/overlay/rocketleague-gsi-spec-info/display/fade-in", "HTTP server url to run show-player-info.", true, false, 0, false, 0, true);
+	cvarManager->registerCvar("streamgraphics_gsi_url_hide_player_info", "easy_set/overlay/rocketleague-gsi-spec-info/display/fade-out", "HTTP server url to run hide-player-info.", true, false, 0, false, 0, true);
 
 	this->gameWrapper->HookEventPost("Function GameEvent_Soccar_TA.ReplayPlayback.BeginState", std::bind(&StreamGraphicsGSI::ReplayStartEvent, this, _1));
 	this->gameWrapper->HookEventPost("Function GameEvent_Soccar_TA.ReplayPlayback.EndState", std::bind(&StreamGraphicsGSI::ReplayEndEvent, this, _1));
@@ -43,11 +47,33 @@ void StreamGraphicsGSI::StartLoop() {
 void StreamGraphicsGSI::SendToStreamGraphics(std::string data)
 {
 	try {
-		http::Request request(cvarManager->getCvar("streamgraphics_gsi_url").getStringValue());
+		http::Request request(cvarManager->getCvar("streamgraphics_gsi_url").getStringValue() + cvarManager->getCvar("streamgraphics_gsi_url_data").getStringValue());
 		(void)request.send("POST", data, { "Content-Type: application/json" });
 	}
 	catch (...) {
-		cvarManager->log("Failed GSI HTTP POST: Please reload the plugin to try again. Using URL - " + cvarManager->getCvar("streamgraphics_gsi_url").getStringValue());
+		cvarManager->log("Failed GSI HTTP POST: Please reload the plugin to try again. Using URL - " + cvarManager->getCvar("streamgraphics_gsi_url").getStringValue() + cvarManager->getCvar("streamgraphics_gsi_url_data").getStringValue());
+		ok = false;
+	}
+}
+void StreamGraphicsGSI::ShowPlayerInfo()
+{
+	try {
+		http::Request request(cvarManager->getCvar("streamgraphics_gsi_url").getStringValue() + cvarManager->getCvar("streamgraphics_gsi_url_show_player_info").getStringValue());
+		(void)request.send("POST");
+	}
+	catch (...) {
+		cvarManager->log("Failed GSI HTTP POST (show-player-info): Please reload the plugin to try again. Using URL - " + cvarManager->getCvar("streamgraphics_gsi_url").getStringValue() + cvarManager->getCvar("streamgraphics_gsi_url_show_player_info").getStringValue());
+		ok = false;
+	}
+}
+void StreamGraphicsGSI::HidePlayerInfo()
+{
+	try {
+		http::Request request(cvarManager->getCvar("streamgraphics_gsi_url").getStringValue() + cvarManager->getCvar("streamgraphics_gsi_url_hide_player_info").getStringValue());
+		(void)request.send("POST");
+	}
+	catch (...) {
+		cvarManager->log("Failed GSI HTTP POST (show-player-info): Please reload the plugin to try again. Using URL - " + cvarManager->getCvar("streamgraphics_gsi_url").getStringValue() + cvarManager->getCvar("streamgraphics_gsi_url_hide_player_info").getStringValue());
 		ok = false;
 	}
 }
@@ -272,6 +298,10 @@ void StreamGraphicsGSI::UpdateState(ServerWrapper wrapper) {
 
 			GameState.CurrentSpec.CurrentBoostAmount = boost;
 
+			if (!GameState.IsSpectatingPlayerPOV && !GameState.InReplayMode) {
+				ShowPlayerInfo();
+			}
+
 			GameState.IsSpectatingPlayerPOV = true;
 		}
 		else {
@@ -293,6 +323,10 @@ void StreamGraphicsGSI::UpdateState(ServerWrapper wrapper) {
 			GameState.CurrentSpec.SpecSlot = 0;
 
 			GameState.CurrentSpec.CurrentBoostAmount = 0;
+
+			if (GameState.IsSpectatingPlayerPOV || GameState.InReplayMode) {
+				HidePlayerInfo();
+			}
 
 			GameState.IsSpectatingPlayerPOV = false;
 		}
@@ -373,6 +407,10 @@ void StreamGraphicsGSI::UpdateState(ServerWrapper wrapper) {
 
 void StreamGraphicsGSI::ResetStates()
 {
+	if (GameState.IsSpectatingPlayerPOV || GameState.InReplayMode) {
+		HidePlayerInfo();
+	}
+
 	GameState.Status = GameStatus::Menu;
 
 	GameState.Match.Playlist = -1;
@@ -389,7 +427,7 @@ void StreamGraphicsGSI::ResetStates()
 	GameState.Match.Teams[0].TeamBoost = 0.0;
 	GameState.Match.Teams[0].Name = "";
 	GameState.Match.Teams[0].ColorHex = "#1A1A1A";
-	GameState.Match.Teams[1].ColorDarkHex = "#000000";
+	GameState.Match.Teams[0].ColorDarkHex = "#000000";
 
 	GameState.Match.Teams[1].Index = 1;
 	GameState.Match.Teams[1].PlayerCount = 0;

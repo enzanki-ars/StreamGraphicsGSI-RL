@@ -19,6 +19,8 @@ private:
 #pragma region StreamGraphics
 	void StartLoop();
 	void SendToStreamGraphics(std::string);
+	void ShowPlayerInfo();
+	void HidePlayerInfo();
 #pragma endregion
 
 #pragma region Events
