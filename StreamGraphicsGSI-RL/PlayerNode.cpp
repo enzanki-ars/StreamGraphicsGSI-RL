@@ -19,6 +19,7 @@ nlohmann::json PlayerNode::GetJson()
 	json_player["shots"] = Shots;
 
 	json_player["boost"] = CurrentBoostAmount;
+	json_player["boost_string"] = std::to_string(int(CurrentBoostAmount * 100)) + "%";
 
 	json_player["own_goals"] = OwnGoals;
 	json_player["demos"] = Demolishes;

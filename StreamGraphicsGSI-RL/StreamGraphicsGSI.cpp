@@ -4,7 +4,7 @@
 #include <sstream>
 #include <iomanip>
 
-BAKKESMOD_PLUGIN(StreamGraphicsGSI, "StreamGraphicsGSI", "1.3.0", PLUGINTYPE_THREADED)
+BAKKESMOD_PLUGIN(StreamGraphicsGSI, "StreamGraphicsGSI", "1.3.1", PLUGINTYPE_THREADED)
 
 using placeholders::_1;
 
