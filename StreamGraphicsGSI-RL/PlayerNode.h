@@ -6,6 +6,9 @@ public:
 	int Team = -1;
 	std::string Name = "";
 
+	std::string ColorHex = "#1A1A1A";
+	std::string ColorDarkHex = "#000000";
+
 	int Ping = 0;
 
 	int Score = 0;
