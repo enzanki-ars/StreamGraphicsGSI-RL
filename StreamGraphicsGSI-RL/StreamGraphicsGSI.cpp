@@ -4,7 +4,7 @@
 #include <sstream>
 #include <iomanip>
 
-BAKKESMOD_PLUGIN(StreamGraphicsGSI, "StreamGraphicsGSI", "1.5.0", PLUGINTYPE_THREADED)
+BAKKESMOD_PLUGIN(StreamGraphicsGSI, "StreamGraphicsGSI", "1.6.0", PLUGINTYPE_THREADED)
 
 using placeholders::_1;
 
@@ -48,14 +48,18 @@ void StreamGraphicsGSI::StartLoop() {
 
 void StreamGraphicsGSI::SendToStreamGraphics(std::string data)
 {
-	try {
-		http::Request request(cvarManager->getCvar("streamgraphics_gsi_url").getStringValue() + cvarManager->getCvar("streamgraphics_gsi_url_data").getStringValue());
-		(void)request.send("POST", data, { "Content-Type: application/json" });
-	}
-	catch (...) {
-		cvarManager->log("Failed GSI HTTP POST: Please reload the plugin to try again. Using URL - " + cvarManager->getCvar("streamgraphics_gsi_url").getStringValue() + cvarManager->getCvar("streamgraphics_gsi_url_data").getStringValue());
-		ok = false;
-	}
+	
+	std::thread t([this](std::string data) {
+		try {
+			http::Request request(cvarManager->getCvar("streamgraphics_gsi_url").getStringValue() + cvarManager->getCvar("streamgraphics_gsi_url_data").getStringValue());
+			(void)request.send("POST", data, { "Content-Type: application/json" }); 
+		}
+		catch (...) {
+			cvarManager->log("Failed GSI HTTP POST: Please reload the plugin to try again. Using URL - " + cvarManager->getCvar("streamgraphics_gsi_url").getStringValue() + cvarManager->getCvar("streamgraphics_gsi_url_data").getStringValue());
+			ok = false;
+		}
+	}, data);
+	t.detach();
 }
 void StreamGraphicsGSI::ShowPlayerInfo()
 {
@@ -69,14 +73,19 @@ void StreamGraphicsGSI::HidePlayerInfo()
 }
 
 void StreamGraphicsGSI::SendEvent(std::string event_url) {
-	try {
-		http::Request request(event_url);
-		(void)request.send("POST");
-	}
-	catch (...) {
-		cvarManager->log("Failed GSI HTTP POST (show-player-info): Please reload the plugin to try again. Using URL - " + event_url);
-		ok = false;
-	}
+	
+	std::thread t([this](std::string event_url) {
+		try {
+			http::Request request(event_url);
+			(void)request.send("POST");
+		}
+		catch (...) {
+			cvarManager->log("Failed GSI HTTP POST (show-player-info): Please reload the plugin to try again. Using URL - " + event_url);
+			ok = false;
+		}
+	}, event_url);
+	t.detach();
+	
 }
 #pragma endregion
 
