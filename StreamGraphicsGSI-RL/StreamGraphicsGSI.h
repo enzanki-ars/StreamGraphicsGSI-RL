@@ -21,6 +21,7 @@ private:
 	void SendToStreamGraphics(std::string);
 	void ShowPlayerInfo();
 	void HidePlayerInfo();
+	void SendEvent(std::string event_url);
 #pragma endregion
 
 #pragma region Events

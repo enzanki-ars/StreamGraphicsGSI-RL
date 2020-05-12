@@ -4,7 +4,7 @@
 #include <sstream>
 #include <iomanip>
 
-BAKKESMOD_PLUGIN(StreamGraphicsGSI, "StreamGraphicsGSI", "1.4.1", PLUGINTYPE_THREADED)
+BAKKESMOD_PLUGIN(StreamGraphicsGSI, "StreamGraphicsGSI", "1.5.0", PLUGINTYPE_THREADED)
 
 using placeholders::_1;
 
@@ -16,8 +16,10 @@ void StreamGraphicsGSI::onLoad()
 {
 	cvarManager->registerCvar("streamgraphics_gsi_url", "http://192.168.1.70:8000/api/v1/", "Base HTTP server url.", true, false, 0, false, 0, true);
 	cvarManager->registerCvar("streamgraphics_gsi_url_data", "set_multiple_for_path_and_flatten/data/com/rocketleague/gsi", "HTTP server url to send the JSON data to.", true, false, 0, false, 0, true);
-	cvarManager->registerCvar("streamgraphics_gsi_url_show_player_info", "easy_set/overlay/rocketleague-gsi-spec-info/display/fade-in", "HTTP server url to run show-player-info.", true, false, 0, false, 0, true);
-	cvarManager->registerCvar("streamgraphics_gsi_url_hide_player_info", "easy_set/overlay/rocketleague-gsi-spec-info/display/fade-out", "HTTP server url to run hide-player-info.", true, false, 0, false, 0, true);
+	cvarManager->registerCvar("streamgraphics_gsi_url_event", "easy_set/", "HTTP server url to run show-player-info.", true, false, 0, false, 0, true);
+	
+	cvarManager->registerCvar("streamgraphics_gsi_url_show_player_info", "overlay/rocketleague-gsi-spec-info/display/fade-in", "HTTP server url to run show-player-info.", true, false, 0, false, 0, true);
+	cvarManager->registerCvar("streamgraphics_gsi_url_hide_player_info", "overlay/rocketleague-gsi-spec-info/display/fade-out", "HTTP server url to run hide-player-info.", true, false, 0, false, 0, true);
 
 	this->gameWrapper->HookEventPost("Function GameEvent_Soccar_TA.ReplayPlayback.BeginState", std::bind(&StreamGraphicsGSI::ReplayStartEvent, this, _1));
 	this->gameWrapper->HookEventPost("Function GameEvent_Soccar_TA.ReplayPlayback.EndState", std::bind(&StreamGraphicsGSI::ReplayEndEvent, this, _1));
@@ -57,23 +59,22 @@ void StreamGraphicsGSI::SendToStreamGraphics(std::string data)
 }
 void StreamGraphicsGSI::ShowPlayerInfo()
 {
-	try {
-		http::Request request(cvarManager->getCvar("streamgraphics_gsi_url").getStringValue() + cvarManager->getCvar("streamgraphics_gsi_url_show_player_info").getStringValue());
-		(void)request.send("POST");
-	}
-	catch (...) {
-		cvarManager->log("Failed GSI HTTP POST (show-player-info): Please reload the plugin to try again. Using URL - " + cvarManager->getCvar("streamgraphics_gsi_url").getStringValue() + cvarManager->getCvar("streamgraphics_gsi_url_show_player_info").getStringValue());
-		ok = false;
-	}
+	std::string event_url = cvarManager->getCvar("streamgraphics_gsi_url").getStringValue() + cvarManager->getCvar("streamgraphics_gsi_url_event").getStringValue() + cvarManager->getCvar("streamgraphics_gsi_url_show_player_info").getStringValue();
+	SendEvent(event_url);
 }
 void StreamGraphicsGSI::HidePlayerInfo()
 {
+	std::string event_url = cvarManager->getCvar("streamgraphics_gsi_url").getStringValue() + cvarManager->getCvar("streamgraphics_gsi_url_event").getStringValue() + cvarManager->getCvar("streamgraphics_gsi_url_hide_player_info").getStringValue();
+	SendEvent(event_url);
+}
+
+void StreamGraphicsGSI::SendEvent(std::string event_url) {
 	try {
-		http::Request request(cvarManager->getCvar("streamgraphics_gsi_url").getStringValue() + cvarManager->getCvar("streamgraphics_gsi_url_hide_player_info").getStringValue());
+		http::Request request(event_url);
 		(void)request.send("POST");
 	}
 	catch (...) {
-		cvarManager->log("Failed GSI HTTP POST (show-player-info): Please reload the plugin to try again. Using URL - " + cvarManager->getCvar("streamgraphics_gsi_url").getStringValue() + cvarManager->getCvar("streamgraphics_gsi_url_hide_player_info").getStringValue());
+		cvarManager->log("Failed GSI HTTP POST (show-player-info): Please reload the plugin to try again. Using URL - " + event_url);
 		ok = false;
 	}
 }
