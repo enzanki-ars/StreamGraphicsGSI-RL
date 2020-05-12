@@ -21,7 +21,20 @@ bind R "plugin reload streamgraphicsgsi-rl"
 
 This will ensure that you can reload the plugin as needed.  Sometimes the plugin does not start when joining a match, and pressing `R` in this case will reload the plugin and start the integration.
 
-Additionally, the URL where the GSI JSON will be sent to via HTTP POST is configured via the `streamgraphics_gsi_url` variable. This can be set by pressing `F6` and typing `streamgraphics_gsi_url "http://localhost:8080"`, replacing the url with anything you would like the data to be sent to.  This same text above can also be added to the cfg/config.cfg file in the BakkesMod folder where it can be automatically set when Rocket League starts.
+Additionally, the URL where the GSI JSON will be sent to via HTTP POST is configured via various variables. This can be set by pressing `F6` and typing (for example) `streamgraphics_gsi_url "http://localhost:8080"`.  This same text above can also be added to the cfg/config.cfg file in the BakkesMod folder where it can be automatically set when Rocket League starts.
+
+**Current list of variables:**
+
+- `streamgraphics_gsi_url`: Base URL prefix
+- `streamgraphics_gsi_url_data`: Path to send GSI data to.
+- `streamgraphics_gsi_url_event`: Event URL prefix
+- `streamgraphics_gsi_url_show_player_info`: Path to POST on `show_player_info`
+- `streamgraphics_gsi_url_hide_player_info`: Path to POST on `hide_player_info`
+
+**How paths are combined:**
+
+- GSI data is sent by combining `streamgraphics_gsi_url + streamgraphics_gsi_url_data`
+- Event messages are sent by combining (for example): `streamgraphics_gsi_url + streamgraphics_gsi_url_event + streamgraphics_gsi_url_show_player_info`
 
 ## Notes
 
