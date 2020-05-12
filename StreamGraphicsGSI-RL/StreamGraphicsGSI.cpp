@@ -308,8 +308,9 @@ void StreamGraphicsGSI::UpdateState(ServerWrapper wrapper) {
 
 			GameState.CurrentSpec.CurrentBoostAmount = boost;
 
-			if (!GameState.IsSpectatingPlayerPOV && !GameState.InReplayMode) {
+			if ((!GameState.IsSpectatingPlayerPOV && !GameState.InReplayMode) && !PLAYER_INFO_DISPLAY_STATE) {
 				ShowPlayerInfo();
+				PLAYER_INFO_DISPLAY_STATE = true;
 			}
 
 			GameState.IsSpectatingPlayerPOV = true;
@@ -334,8 +335,9 @@ void StreamGraphicsGSI::UpdateState(ServerWrapper wrapper) {
 
 			GameState.CurrentSpec.CurrentBoostAmount = 0;
 
-			if (GameState.IsSpectatingPlayerPOV || GameState.InReplayMode) {
+			if ((GameState.IsSpectatingPlayerPOV || GameState.InReplayMode) && PLAYER_INFO_DISPLAY_STATE) {
 				HidePlayerInfo();
+				PLAYER_INFO_DISPLAY_STATE = false;
 			}
 
 			GameState.IsSpectatingPlayerPOV = false;
