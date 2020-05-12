@@ -4,6 +4,9 @@ nlohmann::json TeamNode::GetJson()
 {
 	nlohmann::json json_team;
 	json_team["goals"] = Goals;
+	json_team["saves"] = Saves;
+	json_team["shots"] = Shots;
+	json_team["demos"] = Demolishes;
 	json_team["player_count"] = PlayerCount;
 	json_team["name"] = Name;
 

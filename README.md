@@ -1,6 +1,6 @@
 # StreamGraphicsGSI-RL
 
-Version: 1.4.0
+Version: 1.4.1
 
 Orignal coded based on [diogotr7/AuroraGSI-RocketLeague](https://github.com/diogotr7/AuroraGSI-RocketLeague).
 

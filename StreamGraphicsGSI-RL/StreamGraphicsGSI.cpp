@@ -4,7 +4,7 @@
 #include <sstream>
 #include <iomanip>
 
-BAKKESMOD_PLUGIN(StreamGraphicsGSI, "StreamGraphicsGSI", "1.4.0", PLUGINTYPE_THREADED)
+BAKKESMOD_PLUGIN(StreamGraphicsGSI, "StreamGraphicsGSI", "1.4.1", PLUGINTYPE_THREADED)
 
 using placeholders::_1;
 
@@ -337,6 +337,13 @@ void StreamGraphicsGSI::UpdateState(ServerWrapper wrapper) {
 	GameState.Match.Teams[0].PlayerCount = 0;
 	GameState.Match.Teams[1].PlayerCount = 0;
 
+	GameState.Match.Teams[0].Shots = 0;
+	GameState.Match.Teams[1].Shots = 0;
+	GameState.Match.Teams[0].Saves = 0;
+	GameState.Match.Teams[1].Saves = 0;
+	GameState.Match.Teams[0].Demolishes = 0;
+	GameState.Match.Teams[1].Demolishes = 0;
+
 	for (int i = 0; i < players.Count(); i++) {
 		PriWrapper player = players.Get(i);
 
@@ -383,6 +390,9 @@ void StreamGraphicsGSI::UpdateState(ServerWrapper wrapper) {
 			GameState.SpecPlayers[specSlot - 1].CurrentBoostAmount = boost;
 
 			GameState.Match.Teams[team].TeamBoost += boost;
+			GameState.Match.Teams[team].Saves += saves;
+			GameState.Match.Teams[team].Shots += shots;
+			GameState.Match.Teams[team].Demolishes += demolishes;
 			GameState.Match.Teams[team].PlayerCount += 1;
 
 			if (!player.GetTeam().IsNull()) {
@@ -421,6 +431,9 @@ void StreamGraphicsGSI::ResetStates()
 	GameState.Match.Teams[0].Index = 0;
 	GameState.Match.Teams[0].PlayerCount = 0;
 	GameState.Match.Teams[0].Goals = 0;
+	GameState.Match.Teams[0].Saves = 0;
+	GameState.Match.Teams[0].Shots = 0;
+	GameState.Match.Teams[0].Demolishes = 0;
 	GameState.Match.Teams[0].Red = 0;
 	GameState.Match.Teams[0].Green = 0;
 	GameState.Match.Teams[0].Blue = 0;
@@ -432,6 +445,9 @@ void StreamGraphicsGSI::ResetStates()
 	GameState.Match.Teams[1].Index = 1;
 	GameState.Match.Teams[1].PlayerCount = 0;
 	GameState.Match.Teams[1].Goals = 0;
+	GameState.Match.Teams[1].Saves = 0;
+	GameState.Match.Teams[1].Shots = 0;
+	GameState.Match.Teams[1].Demolishes = 0;
 	GameState.Match.Teams[1].Red = 0;
 	GameState.Match.Teams[1].Green = 0;
 	GameState.Match.Teams[1].Blue = 0;

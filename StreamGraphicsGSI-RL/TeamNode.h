@@ -6,6 +6,9 @@ public:
 	int Index = 0;
 	int PlayerCount = 0;
 	int Goals = 0;
+	int Saves = 0;
+	int Shots = 0;
+	int Demolishes = 0;
 
 	float Red = 0;
 	float Green = 0;
