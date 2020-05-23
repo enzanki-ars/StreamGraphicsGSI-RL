@@ -1,4 +1,5 @@
 #include "TeamNode.h"
+#include <algorithm>
 
 nlohmann::json TeamNode::GetJson()
 {
@@ -9,14 +10,16 @@ nlohmann::json TeamNode::GetJson()
 	json_team["demos"] = Demolishes;
 	json_team["player_count"] = PlayerCount;
 	json_team["name"] = Name;
+	json_team["name_abvr"] = Name.substr(0, 1);
 
 	json_team["red"] = Red;
 	json_team["green"] = Green;
 	json_team["blue"] = Blue;
 	json_team["color_hex"] = ColorHex;
-	json_team["color_css"] = "background-color: " + ColorHex + ";";
+	json_team["color_css"] = "background-color: " + ColorHex + "; color: " + ColorTextHex + ";";
 	json_team["color_dark_hex"] = ColorDarkHex;
-	json_team["color_dark_css"] = "background-color: " + ColorDarkHex + ";";
+	json_team["color_dark_css"] = "background-color: " + ColorDarkHex + "; color: " + ColorTextHex + ";";
+	json_team["color_text_hex"] = ColorTextHex;
 
 	json_team["boost"] = TeamBoost;
 

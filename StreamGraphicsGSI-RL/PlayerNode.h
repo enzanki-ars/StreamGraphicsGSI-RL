@@ -8,6 +8,7 @@ public:
 
 	std::string ColorHex = "#1A1A1A";
 	std::string ColorDarkHex = "#000000";
+	std::string ColorTextHex = "#000000";
 
 	int Ping = 0;
 

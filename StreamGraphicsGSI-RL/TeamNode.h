@@ -15,6 +15,7 @@ public:
 	float Blue = 0;
 	std::string ColorHex = "#1A1A1A";
 	std::string ColorDarkHex = "#000000";
+	std::string ColorTextHex = "#1A1A1A";
 
 	float TeamBoost = 0.0;
 

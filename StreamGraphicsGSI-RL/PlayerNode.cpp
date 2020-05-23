@@ -8,9 +8,10 @@ nlohmann::json PlayerNode::GetJson()
 	json_player["name"] = Name;
 	json_player["ping"] = Ping;
 	json_player["color_hex"] = ColorHex;
-	json_player["color_css"] = "background-color: " + ColorHex + ";";
+	json_player["color_css"] = "background-color: " + ColorHex + "; color: " + ColorTextHex + ";";
 	json_player["color_dark_hex"] = ColorDarkHex;
-	json_player["color_dark_css"] = "background-color: " + ColorDarkHex + ";";
+	json_player["color_dark_css"] = "background-color: " + ColorDarkHex + "; color: " + ColorTextHex + ";";
+	json_player["color_text_hex"] = ColorTextHex;
 
 	json_player["score"] = Score;
 	json_player["goals"] = Goals;

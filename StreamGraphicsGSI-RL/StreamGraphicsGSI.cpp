@@ -4,7 +4,7 @@
 #include <sstream>
 #include <iomanip>
 
-BAKKESMOD_PLUGIN(StreamGraphicsGSI, "StreamGraphicsGSI", "1.6.0", PLUGINTYPE_THREADED)
+BAKKESMOD_PLUGIN(StreamGraphicsGSI, "StreamGraphicsGSI", "1.7.0", PLUGINTYPE_THREADED | PLUGINTYPE_SPECTATOR | PLUGINTYPE_REPLAY)
 
 using placeholders::_1;
 
@@ -29,6 +29,7 @@ void StreamGraphicsGSI::onLoad()
 
 void StreamGraphicsGSI::onUnload()
 {
+	this->ResetStates();
 	ok = false;
 }
 #pragma endregion
@@ -161,18 +162,27 @@ void StreamGraphicsGSI::UpdateState(ServerWrapper wrapper) {
 		else
 			GameState.Match.Teams[i].Name = i == 0 ? "Blue" : "Orange";
 
-		LinearColor asd = teams.Get(i).GetFontColor();
-		GameState.Match.Teams[i].Red = asd.R;
-		GameState.Match.Teams[i].Green = asd.G;
-		GameState.Match.Teams[i].Blue = asd.B;
+		LinearColor team_color = teams.Get(i).GetFontColor();
+		GameState.Match.Teams[i].Red = team_color.R;
+		GameState.Match.Teams[i].Green = team_color.G;
+		GameState.Match.Teams[i].Blue = team_color.B;
 
 		std::stringstream team_hex;
-		team_hex << "#" << std::setw(6) << std::setfill('0') << std::hex << ((int)(asd.R * 0xff) << 16 | (int)(asd.G * 0xff) << 8 | (int)(asd.B * 0xff));
+		team_hex << "#" << std::setw(6) << std::setfill('0') << std::hex << ((int)(team_color.R * 0xff) << 16 | (int)(team_color.G * 0xff) << 8 | (int)(team_color.B * 0xff));
 		GameState.Match.Teams[i].ColorHex = team_hex.str();
 
 		std::stringstream team_hex_dark;
-		team_hex_dark << "#" << std::setw(6) << std::setfill('0') << std::hex << ((int)(asd.R * COLOR_DARKEN * 0xff) << 16 | (int)(asd.G * COLOR_DARKEN * 0xff) << 8 | (int)(asd.B * COLOR_DARKEN * 0xff) & 0xff);
+		team_hex_dark << "#" << std::setw(6) << std::setfill('0') << std::hex << ((int)(team_color.R * COLOR_DARKEN * 0xff) << 16 | (int)(team_color.G * COLOR_DARKEN * 0xff) << 8 | (int)(team_color.B * COLOR_DARKEN * 0xff) & 0xff);
 		GameState.Match.Teams[i].ColorDarkHex = team_hex_dark.str();
+
+		float color_mix = team_color.R + team_color.G + team_color.B;
+
+		if (color_mix < 1.5) {
+			GameState.Match.Teams[i].ColorTextHex = "#FFFFFF";
+		}
+		else {
+			GameState.Match.Teams[i].ColorTextHex = "#000000";
+		}
 	}
 
 
@@ -198,20 +208,31 @@ void StreamGraphicsGSI::UpdateState(ServerWrapper wrapper) {
 				if (!local.GetTeam().IsNull() && (local.GetTeam().GetTeamIndex() == 0 || local.GetTeam().GetTeamIndex() == 1)) {
 					GameState.Player.Team = local.GetTeam().GetTeamIndex();
 
-					LinearColor asd = wrapper.GetTeams().Get(local.GetTeam().GetTeamIndex()).GetFontColor();
+					LinearColor team_color = wrapper.GetTeams().Get(local.GetTeam().GetTeamIndex()).GetFontColor();
 
 					std::stringstream team_hex;
-					team_hex << "#" << std::setw(6) << std::setfill('0') << std::hex << ((int)(asd.R * 0xff) << 16 | (int)(asd.G * 0xff) << 8 | (int)(asd.B * 0xff));
+					team_hex << "#" << std::setw(6) << std::setfill('0') << std::hex << ((int)(team_color.R * 0xff) << 16 | (int)(team_color.G * 0xff) << 8 | (int)(team_color.B * 0xff));
 					GameState.Player.ColorHex = team_hex.str();
 
 					std::stringstream team_hex_dark;
-					team_hex_dark << "#" << std::setw(6) << std::setfill('0') << std::hex << ((int)(asd.R * COLOR_DARKEN * 0xff) << 16 | (int)(asd.G * COLOR_DARKEN * 0xff) << 8 | (int)(asd.B * COLOR_DARKEN * 0xff) & 0xff);
+					team_hex_dark << "#" << std::setw(6) << std::setfill('0') << std::hex << ((int)(team_color.R * COLOR_DARKEN * 0xff) << 16 | (int)(team_color.G * COLOR_DARKEN * 0xff) << 8 | (int)(team_color.B * COLOR_DARKEN * 0xff) & 0xff);
 					GameState.Player.ColorDarkHex = team_hex_dark.str();
+
+
+					float color_mix = team_color.R + team_color.G + team_color.B;
+
+					if (color_mix < 1.5) {
+						GameState.Player.ColorTextHex = "#FFFFFF";
+					}
+					else {
+						GameState.Player.ColorTextHex = "#000000";
+					}
 				}
 				else {
 					GameState.Player.Team = -1;
 					GameState.Player.ColorHex = "#1A1A1A";
 					GameState.Player.ColorDarkHex = "#000000";
+					GameState.Player.ColorTextHex = "#FFFFFF";
 				}
 
 				if (!local.GetCar().IsNull() && !local.GetCar().GetBoostComponent().IsNull())
@@ -276,19 +297,29 @@ void StreamGraphicsGSI::UpdateState(ServerWrapper wrapper) {
 			}
 
 			if (!spec_player.GetTeam().IsNull() && (team == 0 || team == 1)) {
-				LinearColor asd = wrapper.GetTeams().Get(team).GetFontColor();
+				LinearColor team_color = wrapper.GetTeams().Get(team).GetFontColor();
 
 				std::stringstream team_hex;
-				team_hex << "#" << std::setw(6) << std::setfill('0') << std::hex << ((int)(asd.R * 0xff) << 16 | (int)(asd.G * 0xff) << 8 | (int)(asd.B * 0xff));
+				team_hex << "#" << std::setw(6) << std::setfill('0') << std::hex << ((int)(team_color.R * 0xff) << 16 | (int)(team_color.G * 0xff) << 8 | (int)(team_color.B * 0xff));
 				GameState.CurrentSpec.ColorHex = team_hex.str();
 
 				std::stringstream team_hex_dark;
-				team_hex_dark << "#" << std::setw(6) << std::setfill('0') << std::hex << ((int)(asd.R * COLOR_DARKEN * 0xff) << 16 | (int)(asd.G * COLOR_DARKEN * 0xff) << 8 | (int)(asd.B * COLOR_DARKEN * 0xff) & 0xff);
+				team_hex_dark << "#" << std::setw(6) << std::setfill('0') << std::hex << ((int)(team_color.R * COLOR_DARKEN * 0xff) << 16 | (int)(team_color.G * COLOR_DARKEN * 0xff) << 8 | (int)(team_color.B * COLOR_DARKEN * 0xff) & 0xff);
 				GameState.CurrentSpec.ColorDarkHex = team_hex_dark.str();
+
+				float color_mix = team_color.R + team_color.G + team_color.B;
+
+				if (color_mix < 1.5) {
+					GameState.CurrentSpec.ColorTextHex = "#FFFFFF";
+				}
+				else {
+					GameState.CurrentSpec.ColorTextHex = "#000000";
+				}
 			}
 			else {
 				GameState.CurrentSpec.ColorHex = "#1A1A1A";
 				GameState.CurrentSpec.ColorDarkHex = "#000000";
+				GameState.CurrentSpec.ColorTextHex = "#FFFFFF";
 			}
 
 			GameState.CurrentSpec.Team = team;
@@ -408,19 +439,29 @@ void StreamGraphicsGSI::UpdateState(ServerWrapper wrapper) {
 			GameState.Match.Teams[team].PlayerCount += 1;
 
 			if (!player.GetTeam().IsNull()) {
-				LinearColor asd = wrapper.GetTeams().Get(team).GetFontColor();
+				LinearColor team_color = wrapper.GetTeams().Get(team).GetFontColor();
 
 				std::stringstream team_hex;
-				team_hex << "#" << std::setw(6) << std::setfill('0') << std::hex << ((int)(asd.R * 0xff) << 16 | (int)(asd.G * 0xff) << 8 | (int)(asd.B * 0xff));
+				team_hex << "#" << std::setw(6) << std::setfill('0') << std::hex << ((int)(team_color.R * 0xff) << 16 | (int)(team_color.G * 0xff) << 8 | (int)(team_color.B * 0xff));
 				GameState.SpecPlayers[specSlot - 1].ColorHex = team_hex.str();
 
 				std::stringstream team_hex_dark;
-				team_hex_dark << "#" << std::setw(6) << std::setfill('0') << std::hex << ((int)(asd.R * COLOR_DARKEN * 0xff) << 16 | (int)(asd.G * COLOR_DARKEN * 0xff) << 8 | (int)(asd.B * COLOR_DARKEN * 0xff) & 0xff);
+				team_hex_dark << "#" << std::setw(6) << std::setfill('0') << std::hex << ((int)(team_color.R * COLOR_DARKEN * 0xff) << 16 | (int)(team_color.G * COLOR_DARKEN * 0xff) << 8 | (int)(team_color.B * COLOR_DARKEN * 0xff) & 0xff);
 				GameState.SpecPlayers[specSlot - 1].ColorDarkHex = team_hex_dark.str();
+
+				float color_mix = team_color.R + team_color.G + team_color.B;
+
+				if (color_mix < 1.5) {
+					GameState.SpecPlayers[specSlot - 1].ColorTextHex = "#FFFFFF";
+				}
+				else {
+					GameState.SpecPlayers[specSlot - 1].ColorTextHex = "#000000";
+				}
 			}
 			else {
 				GameState.SpecPlayers[specSlot - 1].ColorHex = "#1A1A1A";
 				GameState.SpecPlayers[specSlot - 1].ColorHex = "#000000";
+				GameState.SpecPlayers[specSlot - 1].ColorTextHex = "#FFFFFF";
 			}
 		}
 	}
@@ -453,6 +494,7 @@ void StreamGraphicsGSI::ResetStates()
 	GameState.Match.Teams[0].Name = "";
 	GameState.Match.Teams[0].ColorHex = "#1A1A1A";
 	GameState.Match.Teams[0].ColorDarkHex = "#000000";
+	GameState.Match.Teams[0].ColorTextHex = "#FFFFFF";
 
 	GameState.Match.Teams[1].Index = 1;
 	GameState.Match.Teams[1].PlayerCount = 0;
@@ -467,12 +509,14 @@ void StreamGraphicsGSI::ResetStates()
 	GameState.Match.Teams[1].Name = "";
 	GameState.Match.Teams[1].ColorHex = "#1A1A1A";
 	GameState.Match.Teams[1].ColorDarkHex = "#000000";
+	GameState.Match.Teams[1].ColorTextHex = "#FFFFFF";
 
 	GameState.Player.Team = -1;
 	GameState.Player.Name = "";
 	GameState.Player.Ping = 0;
 	GameState.Player.ColorHex = "#1A1A1A";
 	GameState.Player.ColorDarkHex = "#000000";
+	GameState.Player.ColorTextHex = "#FFFFFF";
 
 	GameState.Player.Assists = 0;
 	GameState.Player.Goals = 0;
@@ -493,6 +537,7 @@ void StreamGraphicsGSI::ResetStates()
 	GameState.CurrentSpec.Ping = 0;
 	GameState.CurrentSpec.ColorHex = "#1A1A1A";
 	GameState.CurrentSpec.ColorDarkHex = "#000000";
+	GameState.CurrentSpec.ColorTextHex = "#FFFFFF";
 
 	GameState.CurrentSpec.Score = 0;
 	GameState.CurrentSpec.Goals = 0;
@@ -516,6 +561,7 @@ void StreamGraphicsGSI::ResetStates()
 		GameState.SpecPlayers[i].Ping = 0;
 		GameState.SpecPlayers[i].ColorHex = "#1A1A1A";
 		GameState.SpecPlayers[i].ColorDarkHex = "#000000";
+		GameState.SpecPlayers[i].ColorTextHex = "#FFFFFF";
 
 		GameState.SpecPlayers[i].Assists = 0;
 		GameState.SpecPlayers[i].Goals = 0;

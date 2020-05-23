@@ -42,6 +42,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -60,6 +61,8 @@
     <ClCompile Include="TeamNode.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="HTTPRequest.hpp" />
+    <ClInclude Include="json.hpp" />
     <ClInclude Include="ProviderNode.h" />
     <ClInclude Include="StreamGraphicsGSI.h" />
     <ClInclude Include="GameStateNode.h" />
